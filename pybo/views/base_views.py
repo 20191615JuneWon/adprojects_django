@@ -2,7 +2,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from django.shortcuts import render, get_object_or_404
 
-from ..models import Question
+from ..models import Question, Comment
 
 
 def index(request):
@@ -22,6 +22,7 @@ def index(request):
     else:  # recent
         question_list = Question.objects.order_by('-create_date')
 
+
     # 검색
     if kw:
         question_list = question_list.filter(
@@ -31,6 +32,7 @@ def index(request):
             Q(answer__author__username__icontains=kw)  # 답변 글쓴이검색
         ).distinct()
 
+    print(question_list)
     # 페이징처리
     paginator = Paginator(question_list, 10)  # 페이지당 10개씩 보여주기
     page_obj = paginator.get_page(page)
@@ -43,6 +45,16 @@ def detail(request, question_id):
     """
     pybo 내용 출력
     """
+    # 입력 파라미터
+
+    page = request.GET.get('page')  # 페이지
+    comment_list = Comment.objects.order_by('-create_date').filter(question_id=question_id)
+    paginator = Paginator(comment_list, 3)  # 페이지당 3개씩 보여주기
+    page_obj = paginator.get_page(page)
+
     question = get_object_or_404(Question, pk=question_id)
-    context = {'question': question}
+    context = {'question': question, 'comment_list': page_obj}
+
     return render(request, 'pybo/question_detail.html', context)
+
+

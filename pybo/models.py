@@ -3,11 +3,12 @@ from django.db import models
 
 
 class Question(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author_question')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author_question', null=True)
     subject = models.CharField(max_length=200)
-    content = models.TextField()
+    content = models.TextField(default=0)
     create_date = models.DateTimeField()
     modify_date = models.DateTimeField(null=True, blank=True)
+    modify_count = models.IntegerField(default=0)
     voter = models.ManyToManyField(User, related_name='voter_question')
 
     def __str__(self):
@@ -15,18 +16,22 @@ class Question(models.Model):
 
 
 class Answer(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author_answer')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author_answer', null=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     content = models.TextField()
     create_date = models.DateTimeField()
     modify_date = models.DateTimeField(null=True, blank=True)
+    modify_count = models.IntegerField(default=0)
     voter = models.ManyToManyField(User, related_name='voter_answer')
 
 
 class Comment(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author_comment', null=True)
     content = models.TextField()
     create_date = models.DateTimeField()
     modify_date = models.DateTimeField(null=True, blank=True)
+    modify_count = models.IntegerField(default=0)
     question = models.ForeignKey(Question, null=True, blank=True, on_delete=models.CASCADE)
     answer = models.ForeignKey(Answer, null=True, blank=True, on_delete=models.CASCADE)
+    voter = models.ManyToManyField(User, related_name='voter_comment')
+
